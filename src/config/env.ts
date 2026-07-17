@@ -16,6 +16,8 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash"),
+  GEMINI_FALLBACK_MODEL: z.string().min(1).default("gemini-3.1-flash-lite"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
