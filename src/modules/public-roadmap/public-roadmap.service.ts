@@ -64,7 +64,7 @@ export function listPublicRoadmaps(filters: PublicRoadmapFilters) {
   const popularity = normalize(filters.popularity);
   const sort = normalize(filters.sort) || "newest";
   const page = Math.max(1, filters.page ?? 1);
-  const limit = Math.min(12, Math.max(1, filters.limit ?? 6));
+  const limit = Math.min(12, Math.max(1, filters.limit ?? 8));
 
   const filtered = publicRoadmaps.filter((roadmap) => {
     const searchable = [

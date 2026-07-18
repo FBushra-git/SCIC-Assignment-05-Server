@@ -25,6 +25,13 @@ export async function connectDatabase() {
   await database
     .collection("interviewSessions")
     .createIndex({ userId: 1, createdAt: -1 });
+  await database.collection("items").createIndex({ userId: 1, updatedAt: -1 });
+  await database.collection("items").createIndex({ createdAt: -1 });
+  await database.collection("items").createIndex({ priority: 1, technologies: 1 });
+  await database
+    .collection("newsletterSubscribers")
+    .createIndex({ email: 1 }, { unique: true });
+  await database.collection("contactRequests").createIndex({ createdAt: -1 });
 }
 
 export async function disconnectDatabase() {
