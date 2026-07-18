@@ -17,14 +17,14 @@ type UserProjectDocument = {
 const userProjects = database.collection<UserProjectDocument>("projects");
 
 export async function listProjects(
-  userId: string,
+  userId: string | undefined,
   filters: {
     search: string | undefined;
     difficulty: string | undefined;
     technology: string | undefined;
   },
 ) {
-  const states = await userProjects.find({ userId }).toArray();
+  const states = userId ? await userProjects.find({ userId }).toArray() : [];
   const statusBySlug = new Map(states.map((state) => [state.projectSlug, state.status]));
   const search = filters.search?.trim().toLocaleLowerCase();
   const difficulty = filters.difficulty?.trim().toLocaleLowerCase();
@@ -50,11 +50,13 @@ export async function listProjects(
     }));
 }
 
-export async function getProject(userId: string, slug: string) {
+export async function getProject(userId: string | undefined, slug: string) {
   const project = projectCatalog.find((item) => item.slug === slug);
   if (!project) throw new AppError(404, "Project not found.");
 
-  const state = await userProjects.findOne({ userId, projectSlug: slug });
+  const state = userId
+    ? await userProjects.findOne({ userId, projectSlug: slug })
+    : null;
   const related = project.relatedSlugs
     .map((relatedSlug) => projectCatalog.find((item) => item.slug === relatedSlug))
     .filter((item): item is (typeof projectCatalog)[number] => Boolean(item))

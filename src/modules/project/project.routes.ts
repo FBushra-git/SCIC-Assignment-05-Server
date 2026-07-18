@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { requireAuth } from "../../middlewares/require-auth.middleware.js";
+import {
+  optionalAuth,
+  requireAuth,
+} from "../../middlewares/require-auth.middleware.js";
 import {
   getProjectBySlug,
   getProjects,
@@ -9,7 +12,6 @@ import {
 
 export const projectRouter = Router();
 
-projectRouter.use(requireAuth);
-projectRouter.get("/", getProjects);
-projectRouter.get("/:slug", getProjectBySlug);
-projectRouter.patch("/:slug/status", setProjectStatus);
+projectRouter.get("/", optionalAuth, getProjects);
+projectRouter.get("/:slug", optionalAuth, getProjectBySlug);
+projectRouter.patch("/:slug/status", requireAuth, setProjectStatus);
