@@ -2,9 +2,9 @@ import { toNodeHandler } from "better-auth/node";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express from "express";
-import rateLimit from "express-rate-limit";
-import helmet from "helmet";
+import express, { type RequestHandler } from "express";
+import { rateLimit } from "express-rate-limit";
+import * as helmetModule from "helmet";
 import { pinoHttp } from "pino-http";
 
 import { auth } from "./config/auth.js";
@@ -12,6 +12,10 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { notFoundHandler } from "./middlewares/not-found.middleware.js";
 import { apiRouter } from "./routes/index.js";
+
+// Helmet exposes its callable middleware as an ESM default export. Keeping the
+// extraction explicit works with both local TypeScript and Vercel's builder.
+const helmet = helmetModule.default as unknown as () => RequestHandler;
 
 export const app = express();
 
@@ -45,7 +49,7 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(
   pinoHttp({
     autoLogging: env.NODE_ENV !== "test",
-    ...(env.NODE_ENV === "development"
+    ...(env.NODE_ENV === "development" && !process.env.VERCEL
       ? {
           transport: {
             target: "pino-pretty",
@@ -77,3 +81,7 @@ app.get("/", (_request, response) => {
 app.use("/api/v1", apiRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
+
+// Vercel detects this default Express export and wraps it in one serverless
+// function. The named export remains available to the local HTTP server.
+export default app;
